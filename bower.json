@@ -1,0 +1,23 @@
+{
+  "name": "gulp-base",
+  "version": "0.0.0",
+  "homepage": "http://urltoyourgithubrepo.com",
+  "authors": [
+    "Your Name <your@emailaddress.com>"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "backbone": "~1.2.0"
+  }
+}
