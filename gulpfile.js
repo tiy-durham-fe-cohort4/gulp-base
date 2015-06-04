@@ -12,9 +12,18 @@ var del = require('del');
 var concat = require('gulp-concat');
 var watch = require('gulp-watch');
 
+// Common patterns used throughout the gulp configuration
+var src = {
+  allHtml: './src/**/*.html',
+  allJs: './src/**/*.js',
+  allFont: './src/**/*.(ttf|woff|otf|eot)',
+  allScss: './src/**/*.scss',
+  allImg: './src/**/*.(jpg|png|svg|gif|ico)'
+};
+
 // The default task is what runs when you type 'gulp' in the terminal
 gulp.task('default', ['clean'], function () {
-  return gulp.start('html', 'img', 'font', 'js', 'css', 'watch', 'reload', 'serve');
+  return gulp.start('html', 'img', 'font', 'js', 'scss', 'watch', 'reload', 'serve');
 });
 
 // Serve is a name I made up. You could call it 'dostuff' or whatever.
@@ -33,23 +42,23 @@ gulp.task('serve', function () {
 // up. In fact, the only name that has intrinsic meaning to gulp is the
 // 'default' task.
 gulp.task('watch', function () {
-  watch('./src/**/*.html', function () {
+  watch(src.allHtml, function () {
     gulp.start('html');
   });
 
-  watch('./src/**/*.js', function () {
+  watch(src.allJs, function () {
     gulp.start('js');
   });
 
-  watch('./src/**/*.scss', function () {
-    gulp.start('css');
+  watch(src.allScss, function () {
+    gulp.start('scss');
   });
   
-  watch('./src/**/*.(jpg|png|svg|gif)', function () {
+  watch(src.allImg, function () {
     gulp.start('img');
   });
   
-  watch('./src/**/*.(ttf|woff|otf|eot)', function () {
+  watch(src.allFont, function () {
     gulp.start('font');
   });
 });
@@ -67,7 +76,7 @@ gulp.task('deploy', function() {
 });
 
 // Adding the CSS task
-gulp.task('css', function () {
+gulp.task('scss', function () {
   return gulp.src('./src/css/main.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(rename('main.css'))
@@ -81,7 +90,7 @@ gulp.task('css', function () {
 // For now, we'll just move the JS files straight into dist
 // but eventually, we'll minify and combine these, etc
 gulp.task('js', ['js:vendor'], function () {
-  return gulp.src('./src/**/*.js')
+  return gulp.src(src.allJs)
     .pipe(gulp.dest('./dist'));
 });
 
@@ -98,19 +107,19 @@ gulp.task('js:vendor', function () {
 // Let's move our html files into dest, too... Sometime, we'll modify this
 // to do minification, cache-busting, etc...
 gulp.task('html', function () {
-  return gulp.src('./src/**/*.html')
+  return gulp.src(src.allHtml)
     .pipe(gulp.dest('./dist'));
 });
 
 // Move any images to the dist folder
 gulp.task('img', function () {
-  return gulp.src('./src/**/*.(jpg|png|svg|gif)')
+  return gulp.src(src.allImg)
     .pipe(gulp.dest('./dist'));
 });
 
 // Move any fonts to the dist folder
 gulp.task('font', function () {
-  return gulp.src('./src/**/*.(ttf|woff|otf|eot)')
+  return gulp.src(src.allFont)
     .pipe(gulp.dest('./dist'));
 });
 
