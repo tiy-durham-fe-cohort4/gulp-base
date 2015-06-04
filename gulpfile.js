@@ -16,9 +16,9 @@ var watch = require('gulp-watch');
 var src = {
   allHtml: './src/**/*.html',
   allJs: './src/**/*.js',
-  allFont: './src/**/*.(ttf|woff|otf|eot)',
+  allFont: './src/**/*.{ttf,woff,otf,eot}',
   allScss: './src/**/*.scss',
-  allImg: './src/**/*.(jpg|png|svg|gif|ico)'
+  allImg: './src/**/*.{jpg,png,svg,gif,ico}'
 };
 
 // The default task is what runs when you type 'gulp' in the terminal
