@@ -14,7 +14,7 @@ var watch = require('gulp-watch');
 
 // The default task is what runs when you type 'gulp' in the terminal
 gulp.task('default', ['clean'], function () {
-  return gulp.start('html', 'js', 'css', 'watch', 'reload', 'serve');
+  return gulp.start('html', 'img', 'font', 'js', 'css', 'watch', 'reload', 'serve');
 });
 
 // Serve is a name I made up. You could call it 'dostuff' or whatever.
@@ -33,7 +33,6 @@ gulp.task('serve', function () {
 // up. In fact, the only name that has intrinsic meaning to gulp is the
 // 'default' task.
 gulp.task('watch', function () {
-  //gulp.watch('./src/**/*', ['reload']);
   watch('./src/**/*.html', function () {
     gulp.start('html');
   });
@@ -44,6 +43,14 @@ gulp.task('watch', function () {
 
   watch('./src/**/*.scss', function () {
     gulp.start('css');
+  });
+  
+  watch('./src/**/*.(jpg|png|svg|gif)', function () {
+    gulp.start('img');
+  });
+  
+  watch('./src/**/*.(ttf|woff|otf|eot)', function () {
+    gulp.start('font');
   });
 });
 
@@ -92,6 +99,18 @@ gulp.task('js:vendor', function () {
 // to do minification, cache-busting, etc...
 gulp.task('html', function () {
   return gulp.src('./src/**/*.html')
+    .pipe(gulp.dest('./dist'));
+});
+
+// Move any images to the dist folder
+gulp.task('img', function () {
+  return gulp.src('./src/**/*.(jpg|png|svg|gif)')
+    .pipe(gulp.dest('./dist'));
+});
+
+// Move any fonts to the dist folder
+gulp.task('font', function () {
+  return gulp.src('./src/**/*.(ttf|woff|otf|eot)')
     .pipe(gulp.dest('./dist'));
 });
 
