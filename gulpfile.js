@@ -1,20 +1,26 @@
-// Require gulp and connect. The require function looks in
-// the node_modules for a 'gulp' package and a 'gulp-connect'
-// package, and returns the function or object exported from
-// those packages. (More on exporting later.)
+// Import all packages needed for the build
 var gulp = require('gulp');
 var connect = require('gulp-connect');
 var ghPages = require('gulp-gh-pages');
+var browserify = require('browserify');
+var rename = require('gulp-rename');
+var uglify = require('gulp-uglifyjs');
+var bulkify = require('bulkify');
+var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
-var rename = require('gulp-rename');
+var hashify = require('gulp-hashify');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var tap = require('gulp-tap');
 var del = require('del');
-var concat = require('gulp-concat');
 var watch = require('gulp-watch');
+var sourcemaps = require('gulp-sourcemaps');
 
 // Common patterns used throughout the gulp configuration
 var src = {
   allHtml: './src/**/*.html',
+  allViews: './src/views/**/*.html',
   allJs: './src/**/*.js',
   allFont: './src/**/*.{ttf,woff,otf,eot}',
   allScss: './src/**/*.scss',
@@ -23,7 +29,7 @@ var src = {
 
 // The default task is what runs when you type 'gulp' in the terminal
 gulp.task('default', ['clean'], function () {
-  return gulp.start('html', 'img', 'font', 'js', 'scss', 'watch', 'reload', 'serve');
+  return gulp.start('html', 'img', 'font', 'js:views', 'js:vendor', 'js', 'scss', 'watch', 'reload', 'serve');
 });
 
 // Serve is a name I made up. You could call it 'dostuff' or whatever.
@@ -43,7 +49,7 @@ gulp.task('serve', function () {
 // 'default' task.
 gulp.task('watch', function () {
   watch(src.allHtml, function () {
-    gulp.start('html');
+    gulp.start('html', 'js:views');
   });
 
   watch(src.allJs, function () {
@@ -87,27 +93,53 @@ gulp.task('scss', function () {
     .pipe(gulp.dest('./dist/css'));
 });
 
-// For now, we'll just move the JS files straight into dist
-// but eventually, we'll minify and combine these, etc
-gulp.task('js', ['js:vendor'], function () {
-  return gulp.src(src.allJs)
-    .pipe(gulp.dest('./dist'));
+// Build our JavaScript files using browserify
+gulp.task('js', function () {
+  return browserify('./src/js/init.js', { debug: true })
+    .transform('bulkify')
+    .external('views')
+    .external('jquery')
+    .external('underscore')
+    .external('backbone')
+    .external('parsleyjs')
+    .bundle()
+    .pipe(source('app.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('./dist/js'));
 });
 
 // Bundle vendor scripts (jQuery, Backbone, etc) into one script (vendor.js)
 gulp.task('js:vendor', function () {
-  return gulp.src([
-    './bower_components/jquery/dist/jquery.min.js',
-    './bower_components/underscore/underscore-min.js'
-    ])
-    .pipe(concat('vendor.js'))
+  return browserify()
+    .require('jquery')
+    .require('underscore')
+    .require('backbone')
+    .require('parsleyjs')
+    .bundle()
+    .pipe(source('vendor.js'))
     .pipe(gulp.dest('./dist/js'));
+});
+
+// Turn all views into a JavaScript object
+gulp.task('js:views', function () {
+  return gulp.src(src.allViews)
+    .pipe(hashify('bundled-views.js'))
+    .pipe(tap(function(file) {
+      return browserify()
+        .require(file, { expose: 'views' })
+        .bundle()
+        .pipe(source('views.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest('./dist/js'));
+    }));
 });
 
 // Let's move our html files into dest, too... Sometime, we'll modify this
 // to do minification, cache-busting, etc...
 gulp.task('html', function () {
-  return gulp.src(src.allHtml)
+  return gulp.src([src.allHtml, '!' + src.allViews])
     .pipe(gulp.dest('./dist'));
 });
 
