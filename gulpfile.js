@@ -4,7 +4,6 @@ var connect = require('gulp-connect');
 var ghPages = require('gulp-gh-pages');
 var browserify = require('browserify');
 var rename = require('gulp-rename');
-var uglify = require('gulp-uglifyjs');
 var bulkify = require('bulkify');
 var concat = require('gulp-concat');
 var sass = require('gulp-sass');
@@ -97,6 +96,7 @@ gulp.task('scss', function () {
 gulp.task('js', function () {
   return browserify('./src/js/init.js', { debug: true })
     .transform('bulkify')
+    .transform({ global: true }, 'uglifyify')
     .external('views')
     .external('jquery')
     .external('underscore')
@@ -112,13 +112,17 @@ gulp.task('js', function () {
 
 // Bundle vendor scripts (jQuery, Backbone, etc) into one script (vendor.js)
 gulp.task('js:vendor', function () {
-  return browserify()
+  return browserify({ debug: true })
+    .transform({ global: true }, 'uglifyify')
     .require('jquery')
     .require('underscore')
     .require('backbone')
     .require('parsleyjs')
     .bundle()
     .pipe(source('vendor.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('./dist/js'));
 });
 
