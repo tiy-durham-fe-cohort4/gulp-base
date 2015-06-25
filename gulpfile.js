@@ -83,6 +83,7 @@ gulp.task('deploy', function() {
 // Adding the CSS task
 gulp.task('scss', function () {
   return gulp.src('./src/css/main.scss')
+    .on('error', swallowError)
     .pipe(sass().on('error', sass.logError))
     .pipe(rename('main.css'))
     .pipe(autoprefixer({
@@ -94,7 +95,10 @@ gulp.task('scss', function () {
 
 // Build our JavaScript files using browserify
 gulp.task('js', function () {
-  return browserify('./src/js/init.js', { debug: true })
+  var stream;
+  
+  try {
+    stream = browserify('./src/js/init.js', { debug: true })
     .transform('bulkify')
     .transform({ global: true }, 'uglifyify')
     .external('views')
@@ -102,7 +106,14 @@ gulp.task('js', function () {
     .external('underscore')
     .external('backbone')
     .external('parsleyjs')
-    .bundle()
+    .bundle();
+  } catch (ex) {
+    console.error(ex);
+    return;
+  }
+  
+  return stream
+     .on('error', swallowError)
     .pipe(source('app.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
@@ -163,3 +174,9 @@ gulp.task('font', function () {
 gulp.task('clean', function (cb) {
   del('./dist', cb);
 });
+
+// Prevent gulp from crashing and leaving a running Node process behind
+function swallowError (error) {
+  console.log(error.toString());
+  this.emit('end');
+}
