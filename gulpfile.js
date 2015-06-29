@@ -62,7 +62,7 @@ gulp.task('watch', function () {
 
 // Deploy our src folder to gh-pages
 gulp.task('deploy', function() {
-  return gulp.src('./dist/**/*').pipe(ghPages());
+  return gulp.src('./static/**/*').pipe(ghPages());
 });
 
 // Adding the CSS task
@@ -75,7 +75,7 @@ gulp.task('scss', function () {
       browsers: ['last 2 versions'],
       cascade: false
     }))
-    .pipe(gulp.dest('./dist/css'));
+    .pipe(gulp.dest('./static/css'));
 });
 
 // Build our JavaScript files using browserify
@@ -103,7 +103,7 @@ gulp.task('js', function () {
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./dist/js'));
+    .pipe(gulp.dest('./static/js'));
 });
 
 // Bundle vendor scripts (jQuery, Backbone, etc) into one script (vendor.js)
@@ -119,7 +119,7 @@ gulp.task('js:vendor', function () {
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./dist/js'));
+    .pipe(gulp.dest('./static/js'));
 });
 
 // Turn all views into a JavaScript object
@@ -132,7 +132,7 @@ gulp.task('js:views', function () {
         .bundle()
         .pipe(source('views.js'))
         .pipe(buffer())
-        .pipe(gulp.dest('./dist/js'));
+        .pipe(gulp.dest('./static/js'));
     }));
 });
 
@@ -140,24 +140,24 @@ gulp.task('js:views', function () {
 // to do minification, cache-busting, etc...
 gulp.task('html', function () {
   return gulp.src([src.allHtml, '!' + src.allViews])
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./static'));
 });
 
 // Move any images to the dist folder
 gulp.task('img', function () {
   return gulp.src(src.allImg)
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./static'));
 });
 
 // Move any fonts to the dist folder
 gulp.task('font', function () {
   return gulp.src(src.allFont)
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./static'));
 });
 
 // Clean the destination directory
 gulp.task('clean', function (cb) {
-  del('./dist', cb);
+  del('./static', cb);
 });
 
 // Prevent gulp from crashing and leaving a running Node process behind
