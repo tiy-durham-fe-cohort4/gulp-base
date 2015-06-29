@@ -32,7 +32,7 @@ gulp.task('default', ['clean'], function () {
 });
 
 // We will use Python to serve our static assets
-gulp.task('serve', shell.task(['python3 manage.py server']));
+gulp.task('serve', shell.task(['python3 manage.py runserver']));
 
 // The watch task watches a directory for changes and tells the
 // browser(s) connected to the server to refresh. I also made this name
