@@ -1,11 +1,11 @@
 // Import all packages needed for the build
 var gulp = require('gulp');
-var connect = require('gulp-connect');
 var ghPages = require('gulp-gh-pages');
 var browserify = require('browserify');
 var rename = require('gulp-rename');
 var bulkify = require('bulkify');
 var concat = require('gulp-concat');
+var shell = require('gulp-shell');
 var sass = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var hashify = require('gulp-hashify');
@@ -31,16 +31,8 @@ gulp.task('default', ['clean'], function () {
   return gulp.start('html', 'img', 'font', 'js:views', 'js:vendor', 'js', 'scss', 'watch', 'reload', 'serve');
 });
 
-// Serve is a name I made up. You could call it 'dostuff' or whatever.
-// The task starts a connect server on port 8000 if you go to
-// http://localhost:8000, you can see what is being served.
-gulp.task('serve', function () {
-  connect.server({
-    root: './dist', // Serve content out of the ./src folder
-    port: 8000, // Serve on port 8000
-    livereload: true // Allow us to reload the app in the browser at will
-  });
-});
+// We will use Python to serve our static assets
+gulp.task('serve', shell.task(['python3 manage.py server']));
 
 // The watch task watches a directory for changes and tells the
 // browser(s) connected to the server to refresh. I also made this name
@@ -65,13 +57,6 @@ gulp.task('watch', function () {
   
   watch(src.allFont, function () {
     gulp.start('font');
-  });
-});
-
-// The reload task tells the connect server to reload all browsers
-gulp.task('reload', function () {
-  watch('./dist/**/*', function () {
-    gulp.src('./dist/**/*').pipe(connect.reload());
   });
 });
 
